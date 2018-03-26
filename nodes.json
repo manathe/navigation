@@ -1,0 +1,35 @@
+{
+ "name": "example website",
+ "children": [
+  {
+   "name": "Home",
+   "children": [
+    {"name": "someTitle", "size":350}
+   ]
+  },
+  {
+   "name": "Contact us",
+   "children": [
+    {"name": "someTitle1", "size":350}
+   ]
+  },
+  {
+   "name": "Settings",
+   "children": [
+    {"name": "someTitle", "size":350}
+   ]
+  },
+  {
+   "name": "About us",
+   "children": [
+    {"name": "someTitle", "size":350}
+   ]
+  }, 
+  {
+   "name": "FAQ",
+   "children": [
+    {"name": "someTitle", "size":350}
+   ]
+  }
+ ]
+}

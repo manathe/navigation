@@ -8,18 +8,18 @@
 
 .node circle {
   fill: #fff;
-  stroke: steelblue;
+  stroke: indigo;
   stroke-width: 1.5px;
 }
 
 .node text {
-  font: 10px sans-serif;
+  font: 20px sans-serif;
 }
 
 .link {
   fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
+  stroke: plum;
+  stroke-width: 2.5px;
 }
 
 </style>
@@ -33,37 +33,67 @@ var margin = {top: 20, right: 120, bottom: 20, left: 120},
 
 var i = 0,
     duration = 750,
-    root;
+    root, origData;
 
 var tree = d3.layout.tree()
     .size([height, width]);
 
 var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
+    .projection(function(d) { return [d.x, d.y]; });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.right + ")");
 
-d3.json("flare.json", function(error, flare) {
+d3.xml("sitemap.xml", function(error, data) {
   if (error) throw error;
+  
+  // Convert data to an array of objects
+  data = [].map.call(data.querySelectorAll("url"), function(url) {
+    return {
+      name: url.querySelector("loc").textContent,
+      lastmod: url.querySelector("lastmod").textContent,
+      changefreq: url.querySelector("changefreq").textContent,
+      priority: url.querySelector("priority").textContent	  	  
+    };
+  });
+  
+  console.log(data);
+  
+  origData = data;
 
-  root = flare;
+  root = data;
   root.x0 = height / 2;
   root.y0 = 0;
+  
+  function addChildren(node){
+	var grouped = d3.nest().key(function(d) {
+			if(d.name.startsWith(node.name) && d.name != node.name)
+				return  node.name;
+			else return ""; 
+		}).map(origData);
+	if(grouped[node.name])
+		return grouped[node.name];
+	return []
+  }
+  
 
   function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
+	var ch = addChildren(d);
+    if (ch) {
+      d._children = ch;
       d._children.forEach(collapse);
       d.children = null;
     }
   }
 
-  root.children.forEach(collapse);
-  update(root);
+  root.forEach(collapse);
+  
+  console.log(root);
+  root.forEach( n => {  n.x0 = height / 2;  n.y0 = 0 +  i ;update(n);})
+  
 });
 
 d3.select(self.frameElement).style("height", "800px");
@@ -75,7 +105,7 @@ function update(source) {
       links = tree.links(nodes);
 
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+  nodes.forEach(function(d) { d.y = d.depth * 110; });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
@@ -84,11 +114,11 @@ function update(source) {
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
       .on("click", click);
 
   nodeEnter.append("circle")
-      .attr("r", 1e-6)
+      .attr("r", 1e1)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   nodeEnter.append("text")
@@ -96,16 +126,16 @@ function update(source) {
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
+      .style("fill-opacity", 1e1);
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeUpdate.select("circle")
-      .attr("r", 4.5)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+      .attr("r", 9.5)
+      .style("fill", function(d) { return d._children ? "mediumorchid" : "#fff"; });
 
   nodeUpdate.select("text")
       .style("fill-opacity", 1);
@@ -113,14 +143,14 @@ function update(source) {
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .attr("transform", function(d) { return "translate(" + source.x + "," + source.y + ")"; })
       .remove();
 
   nodeExit.select("circle")
-      .attr("r", 1e-6);
+      .attr("r", 1e1);
 
   nodeExit.select("text")
-      .style("fill-opacity", 1e-6);
+      .style("fill-opacity", 1e1);
 
   // Update the links…
   var link = svg.selectAll("path.link")
