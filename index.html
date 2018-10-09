@@ -139,7 +139,7 @@ function update(source) {
       .on("click", click);
 
   nodeEnter.append("circle")
-      .attr("r", 1e1)
+      .attr("r", radius1)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   nodeEnter.append("text")
@@ -155,7 +155,7 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeUpdate.select("circle")
-      .attr("r", 9.5)
+      .attr("r", radius)
       .style("fill", function(d) { return d._children ? "mediumorchid" : "#fff"; });
 
   nodeUpdate.select("text")
@@ -168,7 +168,7 @@ function update(source) {
       .remove();
 
   nodeExit.select("circle")
-      .attr("r", 1e1);
+      .attr("r", radius1);
 
   nodeExit.select("text")
       .style("fill-opacity", 1e1);
@@ -204,6 +204,18 @@ function update(source) {
     d.x0 = d.x;
     d.y0 = d.y;
   });
+}
+
+//Set radius depending on the children count
+function radius(d) {
+	return getRadius(d, 9.5);
+}
+function radius1(d) {
+	return getRadius(d,1e1);
+}
+function getRadius(d,r){
+	return (d.children && d.children.length > 0) ? d.children.length + r : 
+		((d._children && d._children.length > 0) ? d._children.length + r : r ) ;
 }
 
 // Toggle children on click.
