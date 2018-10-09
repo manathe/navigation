@@ -60,39 +60,57 @@ d3.xml("sitemap.xml", function(error, data) {
     };
   });
   
-  console.log(data);
-  
   origData = data;
+  
+  data.forEach(d => {d.children = addChildren(d)})
+  
+  console.log(data);
 
-  root = data;
+  root = data[0];
   root.x0 = height / 2;
   root.y0 = 0;
   
   function addChildren(node){
 	var grouped = d3.nest().key(function(d) {
-			if(d.name.startsWith(node.name) && d.name != node.name)
-				return  node.name;
-			else return ""; 
+			if(d.name.startsWith(node.name) && d.name != node.name){
+				var sub = d.name.substring(node.name.length)
+				if (sub.lastIndexOf("/") == sub.length - 1) //the last character
+					return sub.search("/") == sub.length - 1 ? node.name : "";
+				else 
+					return sub.search("/") < 0 ? node.name : ""; //name does not include /
+			} else return ""; 
 		}).map(origData);
-	if(grouped[node.name])
+		
+	if(grouped[node.name]){
+		//here I think we should remove all grouped from the original data to create a tree structure
+		grouped[node.name].forEach(n => {  origData = origData.slice(n)})
 		return grouped[node.name];
+	}
 	return []
   }
   
 
   function collapse(d) {
-	var ch = addChildren(d);
-    if (ch) {
-      d._children = ch;
+    if (d.children) {
+      d._children = d.children;
+	  console.log(d.children);
       d._children.forEach(collapse);
       d.children = null;
-    }
+    } else {
+      d._children = addChildren(d);
+	  console.log(d._children);
+      d._children.forEach(collapse);
+      d.children = null;
+	
+	}
   }
 
-  root.forEach(collapse);
+  root.children.forEach(collapse);
   
   console.log(root);
-  root.forEach( n => {  n.x0 = height / 2;  n.y0 = 0 +  i ;update(n);})
+  console.log(origData);
+  //root.forEach( n => {  n.x0 = height / 2;  n.y0 = 0 +  i ;update(n);})
+  update(root);
   
 });
 
