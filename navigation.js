@@ -23,11 +23,12 @@ d3.xml("sitemap.xml", function(error, data) {
   
   // Convert data to an array of objects
   data = [].map.call(data.querySelectorAll("url"), function(url) {
+
     return {
-      name: url.querySelector("loc").textContent,
-      lastmod: url.querySelector("lastmod").textContent,
-      changefreq: url.querySelector("changefreq").textContent,
-      priority: url.querySelector("priority").textContent	  	  
+      name: url.querySelector("loc") ? url.querySelector("loc").textContent : undefined,
+      lastmod: url.querySelector("lastmod") ? url.querySelector("lastmod").textContent : undefined,
+      changefreq: url.querySelector("changefreq") ? url.querySelector("changefreq").textContent : undefined,
+      priority: url.querySelector("priority") ? url.querySelector("priority").textContent : undefined	  	  
     };
   });
   
@@ -90,6 +91,35 @@ d3.xml("sitemap.xml", function(error, data) {
   update(root);
   
 });
+
+chrome.runtime.sendMessage(
+    {'type': 'getRequestedUrls'},
+    function generateList(response) {
+      var section = document.querySelector('body>section');
+      var results = response.result;
+      var ol = document.createElement('ol');
+      var li, p, em, code, text;
+      var i;
+      for (i = 0; i < results.length; i++ ) {
+        li = document.createElement('li');
+        p = document.createElement('p');
+        em = document.createElement('em');
+        em.textContent = i + 1;
+        code = document.createElement('code');
+        code.textContent = results[i].url;
+        text = document.createTextNode(
+          chrome.i18n.getMessage('navigationDescription',
+            [results[i].numRequests,
+            results[i].average]));
+        p.appendChild(em);
+        p.appendChild(code);
+        p.appendChild(text);
+        li.appendChild(p);
+        ol.appendChild(li);
+      }
+      section.innerHTML = '';
+      section.appendChild(ol);
+    });
 
 d3.select(self.frameElement).style("height", "400px");
 
