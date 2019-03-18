@@ -7,6 +7,10 @@
     "message": "Displays map of the current website to aid in navigation.",
     "description": "The extension description."
   },
+  "extTooltip": {
+    "message": "Press Ctrl(Win)/Command(Mac)+Shift+F to show/hide map",
+    "description": "The extension tooltip"
+  },
 
   "navigationDescription": {
     "message": ", requested $NUM$ times.  Loaded in an average of $LOAD$ miliseconds.",
@@ -21,6 +25,11 @@
         "example": "12.345 (The average load time in miliseconds.)"
       }
     }
+  },
+  
+  "executeBrowserActionDescription": {
+    "message": "Opens up popup",
+    "description": "Dscription for browser action shortcut"
   },
 
   "inHandler": {
@@ -44,9 +53,5 @@
   "errorErrorOccurredWithoutPending": {
     "message": "Wha?  `onErrorOccurred` for `%s` called, though it's not pending: %o",
     "description": "Error logged when `onErrorOccurred` is triggered on a non-pending request."
-  },
-  "errorCommittedWithoutPending": {
-    "message": "Wha?  `onCompleted` for `%s` called, though it's not pending: %o",
-    "description": "Error logged when `onCompleted` is triggered on a non-pending request."
   }
 }
