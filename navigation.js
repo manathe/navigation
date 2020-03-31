@@ -13,8 +13,8 @@ chrome.runtime.sendMessage(
       //since our selection is empty let's update it
       var p = olUpdate.enter().append("li").append("p")
 
-      p.append("em").text(function(d, i) { return i + 1 })
-      p.append("code").text(function(d) { return d.url })
+      p.append("img").attr("src", function(d) { return 'chrome://favicon/' + d.url })
+      p.append("a").text(function(d) { return new URL(d.url).host }).attr("href", function(d) {return d.url})
       p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.average])})
 
       drawMap(response.result)
@@ -100,13 +100,27 @@ function update(source) {
     })
     .on('click', click);
 
+    //Create an image background
+    nodeEnter.append('svg:defs').append('svg:pattern')
+      .attr("id", function(d, i) { return "grump_avatar" + i })
+     // .attr("width", config.avatar_size) 
+     // .attr("height", config.avatar_size)
+      .attr("patternUnits", "userSpaceOnUse")
+      .append("svg:image")
+      .attr("xlink:href", function(d) { return 'chrome://favicon/' + d.url})
+     // .attr("width", config.avatar_size)
+     // .attr("height", config.avatar_size)
+      .attr("x", 0)
+      .attr("y", 0);
+
   // Add Circle for the nodes
   nodeEnter.append('circle')
       .attr('class', 'node')
       .attr('r', 1e-6)
       .style("fill", function(d) {
           return d._children ? "lightsteelblue" : "#fff";
-      });
+      })
+      .style("fill", function(d, i) { return "url(#grump_avatar" + i + ")" });
 
   // Add labels for the nodes
   nodeEnter.append('text')
