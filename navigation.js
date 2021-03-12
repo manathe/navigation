@@ -39,6 +39,7 @@ var treemap = d3.tree().size([height, width]);
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
+    .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.right + ")");
 
@@ -106,8 +107,11 @@ function update(source) {
      // .attr("width", config.avatar_size) 
      // .attr("height", config.avatar_size)
       .attr("patternUnits", "userSpaceOnUse")
+      .append("svg:a")
+      .attr("xlink:href", function(d) { return d.data.url})
+      .attr("target", "_blank")
       .append("svg:image")
-      .attr("xlink:href", function(d) { return 'chrome://favicon/' + d.url})
+      .attr("xlink:href", function(d) { return 'chrome://favicon/' + d.data.url})
      // .attr("width", config.avatar_size)
      // .attr("height", config.avatar_size)
       .attr("x", 0)
