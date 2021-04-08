@@ -14,7 +14,7 @@ chrome.runtime.sendMessage(
       var p = olUpdate.enter().append("li").append("p")
 
       p.append("img").attr("src", function(d) { return 'chrome://favicon/' + d.url })
-      p.append("a").text(function(d) { return new URL(d.url).host }).attr("href", function(d) {return d.url})
+      p.append("a").text(function(d) { return new URL(d.url).host || d.url }).attr("href", function(d) {return d.url})
       p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.average])})
 
       drawMap(response.result)
@@ -124,7 +124,9 @@ function update(source) {
       .style("fill", function(d) {
           return d._children ? "lightsteelblue" : "#fff";
       })
-      .style("fill", function(d, i) { return "url(#grump_avatar" + i + ")" });
+      .style("fill", function(d, i) { return "url(#grump_avatar" + i + ")" })
+      .append('title')
+      .text(function(d){ return d.data.url; });
 
   // Add labels for the nodes
   nodeEnter.append('text')
