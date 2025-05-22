@@ -53,7 +53,7 @@ function drawMap(hist) {
   }
   
   // Assigns parent, children, height, depth
-  root = d3.hierarchy(treeData, function(d) { return d.children; });
+  root = d3.hierarchy(treeData, d => d.children);
   root.x0 = height / 2;
   root.y0 = 0;
 
@@ -108,10 +108,10 @@ function update(source) {
      // .attr("height", config.avatar_size)
       .attr("patternUnits", "userSpaceOnUse")
       .append("svg:a")
-      .attr("xlink:href", function(d) { return d.data.url})
+      .attr("href", function(d) { return d.data.url})
       .attr("target", "_blank")
       .append("svg:image")
-      .attr("xlink:href", function(d) { return 'chrome://favicon/' + d.data.url})
+      .attr("href", function(d) { return 'chrome://favicon/' + d.data.url})
      // .attr("width", config.avatar_size)
      // .attr("height", config.avatar_size)
       .attr("x", 0)
@@ -121,23 +121,17 @@ function update(source) {
   nodeEnter.append('circle')
       .attr('class', 'node')
       .attr('r', 1e-6)
-      .style("fill", function(d) {
-          return d._children ? "lightsteelblue" : "#fff";
-      })
-      .style("fill", function(d, i) { return "url(#grump_avatar" + i + ")" })
+      .style("fill", (d) => d._children ? "lightsteelblue" : "#fff")
+      .style("fill", (d, i) => `url(#grump_avatar${i})`)
       .append('title')
-      .text(function(d){ return d.data.url; });
+      .text((d) => d.data.url);
 
   // Add labels for the nodes
   nodeEnter.append('text')
       .attr("dy", ".35em")
-      .attr("x", function(d) {
-          return d.children || d._children ? -13 : 13;
-      })
-      .attr("text-anchor", function(d) {
-          return d.children || d._children ? "end" : "start";
-      })
-      .text(function(d) { return d.data.name; });
+      .attr("x", (d) =>  d.children || d._children ? -13 : 13)
+      .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
+      .text((d) => d.data.name);
 
   // UPDATE
   var nodeUpdate = nodeEnter.merge(node);
