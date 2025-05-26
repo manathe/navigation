@@ -20,7 +20,8 @@
   },
   "permissions":    [
     "webNavigation",
-    "storage"
+    "storage",
+    "favicon"
   ],
   "host_permissions": [
   ],

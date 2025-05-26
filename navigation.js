@@ -13,7 +13,7 @@ chrome.runtime.sendMessage(
       //since our selection is empty let's update it
       var p = olUpdate.enter().append("li").append("p")
 
-      p.append("img").attr("src", function(d) { return 'chrome://favicon/' + d.url })
+      p.append("img").attr("src", function(d) { return faviconURL(d.url) })
       p.append("a").text(function(d) { return new URL(d.url).host || d.url }).attr("href", function(d) {return d.url})
       p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.average])})
 
@@ -111,7 +111,7 @@ function update(source) {
       .attr("href", function(d) { return d.data.url})
       .attr("target", "_blank")
       .append("svg:image")
-      .attr("href", function(d) { return 'chrome://favicon/' + d.data.url})
+      .attr("href", function(d) { return faviconURL(d.data.url)})
      // .attr("width", config.avatar_size)
      // .attr("height", config.avatar_size)
       .attr("x", 0)
@@ -239,5 +239,12 @@ function click(d) {
     d._children = null;
   }
   update(d);
+}
+
+function faviconURL(u) {
+  const url = new URL(chrome.runtime.getURL('/_favicon/'));
+  url.searchParams.set('pageUrl', u);
+  url.searchParams.set('size', '24');
+  return url.toString();
 }
 
