@@ -405,8 +405,12 @@ NavigationCollector.prototype = {
    * @private
    */
   onMessageListener_: function(message, sender, sendResponse) {
-    if (message.type === 'getRequestedUrls')
-      sendResponse({result: this.getRequestedUrls()});
+    if (message.type === 'getMostRequestedUrls')
+      sendResponse({result: this.getMostRequestedUrls(message.num)});
+    else if(message.type === 'getMostErroredUrls')
+      sendResponse({result: this.getMostErroredUrls(message.num)});
+    else if(message.type === 'getMostFrequentUrlsWithErrors')
+      sendResponse({result: this.getMostFrequentUrlsWithErrors(message.num)});
     else
       sendResponse({});
   },
@@ -440,7 +444,7 @@ NavigationCollector.prototype = {
    * @return {Object<string, NavigationCollector.Request>} The list of
    *     successful navigation requests, sorted in decending order of frequency.
    */
-  getRequestedUrls: function(num) {
+  getMostRequestedUrls: function(num) {
     return this.getMostFrequentUrls_(this.completed, num);
   },
 
@@ -457,6 +461,21 @@ NavigationCollector.prototype = {
    */
   getMostErroredUrls: function(num) {
     return this.getMostErroredUrls_(this.errored, num);
+  },
+
+
+  /**
+   * Get a list of the X most requested URLs including error rate.
+   *
+   * @param {number=} num The number of unsuccessful navigation requests to
+   *     return. If 0 is passed in, or the argument left off entirely, all
+   *     successful requests are returned.
+   * @return {Object<string, NavigationCollector.Request>} The list of
+   *     unsuccessful navigation requests, sorted in decending order
+   *     of frequency.
+   */
+  getMostFrequentUrlsWithErrors: function(num) {
+    return this.getMostFrequentUrlsWithErrors_(this.completed, this.errored, num);
   },
 
 
@@ -486,7 +505,7 @@ NavigationCollector.prototype = {
           url: x,
           numRequests: list[x].length,
           requestList: list[x],
-          average: avg
+          averageDuration: avg
         });
       }
     }
@@ -496,5 +515,65 @@ NavigationCollector.prototype = {
     });
     // Return the requested number of results.
     return num ? result.slice(0, num) : result;
+  },
+
+  /**
+   * Get a list of the most frequent URLs in a list, including error rates.
+   *
+   * @param {Object<string, Array<NavigationCollector.Request>>} list A list of URLs to parse.
+   * @param {Object<string, Array<NavigationCollector.Request>>} errorList A list of errored URLs to compare.
+   * @param {number=} num The number of navigation requests to return. If
+   *     0 is passed in, or the argument left off entirely, all requests
+   *     are returned.
+   * @return {Array<Object>} The list of navigation requests, sorted in descending order of frequency.
+   * @private
+   */
+  getMostFrequentUrlsWithErrors_: function(list, errorList, num) {
+    var result = [];
+    var avg, errorRate;
+
+    for (var url in list) {
+      avg = 0;
+      errorRate = 0;
+
+      if (list.hasOwnProperty(url) && list[url].length) {
+        list[url].forEach(function(o) {
+          avg += o.duration;
+        });
+        avg = avg / list[url].length;
+
+        // Calculate error rate if the URL exists in the error list
+        if (errorList[url]) {
+          errorRate = errorList[url].length / (list[url].length + errorList[url].length);
+        }
+
+        result.push({
+          url: url,
+          numRequests: list[url].length,
+          requestList: list[url],
+          averageDuration: avg,
+          errorRate: errorRate
+        });
+      }
+    }
+
+    // Sort the array by the number of requests
+    result.sort(function(a, b) {
+      return b.numRequests - a.numRequests;
+    });
+
+    return num ? result.slice(0, num) : result;
+  },
+
+  /**
+   * Compare completed and errored paths to identify bottlenecks and disorientation areas.
+   *
+   * @return {Array<Object>} A list of URLs with high error rates or long durations.
+   */
+  identifyBottlenecks: function() {
+    var frequentUrls = this.getMostFrequentUrlsWithErrors_(this.completed_, this.errored_);
+    return frequentUrls.filter(function(urlData) {
+      return urlData.errorRate > 0.2 || urlData.averageDuration > 5000; // Example thresholds
+    });
   }
 };

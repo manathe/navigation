@@ -1,5 +1,5 @@
 chrome.runtime.sendMessage(
-    {'type': 'getRequestedUrls'},
+    {'type': 'getMostFrequentUrlsWithErrors'},
     function generateList(response) {
       
       var section = d3.select("section") //existing section
@@ -15,7 +15,7 @@ chrome.runtime.sendMessage(
 
       p.append("img").attr("src", function(d) { return faviconURL(d.url) })
       p.append("a").text(function(d) { return new URL(d.url).host || d.url }).attr("href", function(d) {return d.url})
-      p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.average])})
+      p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.averageDuration, d.errorRate])})
 
       drawMap(response.result)
 
@@ -49,7 +49,8 @@ function drawMap(hist) {
     url: 'Main',
     numRequests: 1,
     children: hist,
-    average: 0.0
+    averageDuration: 0.0,
+    errorRate: 0.0
   }
   
   // Assigns parent, children, height, depth
