@@ -30,6 +30,17 @@
       }
     }
   },
+
+  "navigationDetails": {
+    "message": "$LIST$.",
+    "description": "The message posted in the popup for each stored navigation.",
+    "placeholders": {
+      "LIST": {
+        "content": "$1",
+        "example": "json string. contains the list of URLs and their details."
+      }
+    }
+  },
   
   "executeBrowserActionDescription": {
     "message": "Opens up popup",

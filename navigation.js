@@ -16,6 +16,8 @@ chrome.runtime.sendMessage(
       p.append("img").attr("src", function(d) { return faviconURL(d.url) })
       p.append("a").text(function(d) { return new URL(d.url).host || d.url }).attr("href", function(d) {return d.url})
       p.append("text").text(function(d){ return chrome.i18n.getMessage('navigationDescription', [d.numRequests, d.averageDuration, d.errorRate])})
+      p.append("br")
+      p.append("span").text(function(d) { return chrome.i18n.getMessage('navigationDetails', [JSON.stringify(d.requestList)])})
 
       drawMap(response.result)
 
