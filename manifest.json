@@ -7,21 +7,18 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["navigation.js"],
-      "run_at": "document_end"
-    }
-  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "action": {
-	  "default_popup": "index.html",
       "default_title": "__MSG_extTooltip__"
   },
   "permissions":    [
     "webNavigation",
     "storage",
-    "favicon"
+    "favicon",
+    "tabs",
+    "sidePanel"
   ],
   "host_permissions": [
   ],

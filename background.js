@@ -4,6 +4,11 @@
 
 importScripts('navigation_collector.js');
 
+// This tells Chrome to open the side panel when the user clicks the extension icon
+chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error) => console.error(error));
+
 /**
  * @filedescription Initializes the extension's background page.
  */
